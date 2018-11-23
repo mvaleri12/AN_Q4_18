@@ -1,0 +1,104 @@
+1. SQL Review (15 min)
+
+	* What are the SQL keywords? What do they do?
+	* Why are data-types so important?
+	* Function review
+		DISTINCT --> What does it do and where do you use it?
+		TO_CHAR() -- What does it do and where do you use it?
+		CAST() --> What does it do and where do you use it?
+		UPPER() --> What does it do and where do you use it?
+		LOWER() --> What does it do and where do you use it?
+		LIKE --> What does it do and where do you use it?
+		AS --> What does it do where do you use it?	
+		
+	* WHERE CLAUSE REVIEW
+		
+		1. 1 Condition, 1 column
+		2. 2 Conditions, 1 Column
+		3. Multiple Conditions, Multiple Columns (AND / OR)
+		4. NULL VALUES
+		5. RANGES
+		
+	<PRACTICE>	
+	
+	ASSESSMENT, MAKE THE CHART.
+		
+		
+2. Finish Handout Aggregations and JOIN commands (1 hour)
+	Do WHERE examples in practice
+	
+--Break 10 min
+
+3. Test of understanding - 20 minutes - Putting it all together (Commenting Files)
+
+
+/**********************
+** NAME: Name of report.
+** DESC: Description of report.
+** AUTH: Name of author.lkj
+** DATE: Date report published.
+***********************
+**Change History
+***********************
+** Version | Date | Author | Description
+ 	***************************/
+	
+	
+I want to see a total count of merchants, total offers, total GMS by marketplace name.	
+	
+SELECT
+sum((cast(A.launch_offer_count_fba as INT) + A.launch_offer_count_mfn)) as TOTAL_OFFERS
+,count(distinct A.merchant_id) as TOTAL_MERCHANTS
+,sum(A.launch_day_gms) as TOTAL_LAUNCH_DAY_GMS
+,ROUND(sum(A.launch_day_gms) / sum((cast(A.launch_offer_count_fba as INT) + A.launch_offer_count_mfn)),2) AS TOTAL_GMS_PER_OFFER
+,A.marketplace_id
+,B.MARKETPLACE_NAME
+
+FROM LAUNCHES A
+
+LEFT JOIN MARKETPLACE_DIM B ON A.MARKETPLACE_ID = B.MARKETPLACE_ID
+
+WHERE
+FBA_ENROLLED = TRUE AND MERCHANT_LAUNCH_GL <> 'Pets'
+
+GROUP BY
+A.MARKETPLACE_ID
+,B.MARKETPLACE_NAME
+
+ORDER BY 4 DESC
+	
+
+4. Extra Practice
+Which products are not from vendor ‘Jim Beam Brands’?
+SELECT * FROM products WHERE vendor_name!='Jim Beam Brands’;
+
+>, >=
+Which products are higher than 90 proof?
+SELECT * FROM products WHERE CAST(proof as INT) > 90;
+
+<, <=
+Which products have a case cost of less than $60?
+SELECT * FROM products WHERE case_cost < 60;
+
+Please write queries that answer the following questions:
+Which products have a case cost of more than $100?
+Which tequilas have a case cost of more than $100?
+Which tequilas or scotch whiskies have a case cost of more than $100?
+Which tequilas or scotch whiskies have a case cost between $100 and $120?
+Which whiskies of any kind cost more than $100?
+Which whiskies of any kind cost between $100 and $150?
+Which products, excluding tequilas, cost between $100 and $120?
+
+
+Here’s a quick review of what we covered today:
+
+ How to comment our code using --  and  /* comment */. 
+ SQL conditional operators  =, !=, >, <, IN, NOT IN, and BETWEEN.
+ How to use the SQL Boolean operator OR to include only the desired data.
+ Introducing SQL commands GROUP BY and HAVING to filter data.
+ Using aggregate functions MIN, MAX, SUM, AVG, and COUNT.
+ Appling calculations to fields using the order of operations.
+
+
+
+		

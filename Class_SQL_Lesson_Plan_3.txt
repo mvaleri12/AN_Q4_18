@@ -1,0 +1,318 @@
+SQL Class Lesson Plan 3: Subqueries, CTEs and CASE STATEMENTS 
+
+Review
+
+1. What are the SIX SQL KEYWORDS?
+1. Why do we join?
+2. What is required to join 2 tables?
+3. What three steps when joining a table?
+4. How do we visualize a JOIN? What is Table A and Table b?
+
+INTRO - EXERCISE
+
+1. Write that query shows us the number of distincts product that are UNSOLD by product category.
+
+	SELECT
+	count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+	,b.category_name
+
+	FROM
+	SALES A
+
+	RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+	WHERE 
+	A.ITEM IS NULL
+
+	GROUP BY
+	b.category_name
+
+	ORDER BY 1 DESC
+
+	
+2. PROMPTs - The Perfect Gift
+
+CASE STATEMENTS - Multiple Conditions WE'd LIKE TO AUGMENT OUR DATA SET WITH A MORE DESCRIPTIVE COLUMN. CONDITIONAL. TEH COLUMN DOES NOT EXIST, BUT WE WANT TO MAKE IT. 
+
+ANYTHING you put in the WHERE CLAUSE, CAN GO IN A CASE STATEMENT.
+
+INSTRUCTED GUIDED
+
+"We need some 100 proof liquor. I want to get drunk. Never understood what people were talking about. I was uneducated"
+
+	PROOFS >= 100 - WASTED
+	BETWEEN 80 and 99 - VERY DRUNK
+	BETWEEN 50 and 79 - DRUNK
+	LESS THAN 50  - TIPSY ELSE END
+
+	SHELF_PRICE
+	SHELF_PRICE < 10.00 - CHEAP
+	SHELF_RPICE 10 and 30 - MODERATE
+	SHELF_PRICE 30 and 60 - HIGH
+	SHELF_PRICE OVER 60 -  EXPENSIVE ELSE END
+	
+	SELECT
+
+    SUM(CASE WHEN CAST(PROOF AS INT) >= 100 THEN 1 ELSE 0 END) AS TOTAL_WASTED_PRODUCTS
+   ,SUM(CASE WHEN CAST(PROOF AS INT) BETWEEN 80 and 99 THEN 1 ELSE 0 END) AS TOTAL_VERY_DRUNK_PRODUCTS
+   ,SUM(CASE WHEN CAST(PROOF AS INT) BETWEEN 50 and 79 THEN 1 ELSE 0 END) AS TOTAL_DRUNK_PRODUCTS
+   ,SUM(CASE WHEN CAST(PROOF AS INT) < 50 THEN 1 ELSE 0 END) AS TOTAL_TIPSY_PRODUCTS
+
+    FROM PRODUCTS
+	
+	
+What if I wanted to counted to count the number of produts that fall into those categories? The min price, the MAX price?, the min_Bottle the max_Bottle_size
+
+What if I wanted to count the number of products that full into these categories, 
+but represented as columns? I could sum/case. When I want to show something as a row.  Structure.
+	
+	
+INDEPENDENT PRATICE - The PERFECT GIFTS FOR FAMILY
+
+	You are shopping for liquor for your family. They've told you their preferences for liquor below.
+
+	Can you write A SINGLE case statement CALLED 'FAMILY MEMBER' THAT Will ASSIGN the following labels to each product?
+	
+		MOM
+		ITEM DESC - LIKES ORANGE FLAVORED DRINKS
+		PROOF - LIKES DRINKS THAT GET HER TIPSY
+		CATEGORY NAME - HAD A TERRIBLE EXPERIENCE WITH VODKA in COLLEGE AND WON'T DRINK ANY LONGER. 'FLAVORED VODKA' AND 'IMPORTED VODKA - MISC'
+		
+		DAD
+		ITEM DESC - LIKES COFFEE FLAVORED DRINKS
+		PROOF - LIKES DRINKS WITH AN ALCOHOL CONTENT THAT WILL GET HIM MORE THAN TIPSY
+		Bottle_size - WANTS TO BE ABLE TO FIT IN HIS COAT POCKET WHEN at work, LESS 750 ML.
+		
+		BROTHER
+		CATEGORY NAME = Became a HUGE FAN OF GIN since binge watching Mad-Men. 'AMERICAN DRY GINS'
+		PROOF: LIKES TO GET AT LEAST VERY DRUNK
+		SHELF_PRICE - Was kind of a turd last X-MAS, so the gift is going to be CHEAP.
+		
+		SISTER
+		ITEM_DESCRIPTION: LIKES CINNAMON OR PEPPERMINT FLAVORED DRINKS
+		LIKES TO GET DRUNK
+		VENDOR_NAME - Ex-Boyfriend works for 'Diageo Americas' and does not wish him well
+		
+
+SELECT
+CASE 
+
+WHEN 
+ lower(item_description) like '%orange%' 
+ AND cast(proof AS INT) < 50
+ AND category_name NOT IN ('FLAVORED VODKA','IMPORTED VODKA - MISC') THEN 'MOM'
+ 
+ WHEN 
+ lower(item_description) like '%coffee%' 
+ AND cast(proof AS INT) >= 50
+ AND bottle_size < 750 THEN 'DAD'
+ 
+ WHEN 
+ category_name = ('AMERICAN DRY GINS')
+ AND shelf_price < 10
+ AND cast(proof AS INT) > 80 THEN 'BROTHER'
+ 
+ WHEN
+ (lower(item_description) like '%cinnamon%' or lower(item_description) LIKE '%peppermint%') 
+ AND cast(proof AS INT) BETWEEN 50 AND 80
+ AND VENDOR_NAME <> 'Diageo Americas' THEN 'SISTER'
+ 
+ ELSE 'OTHER' END AS FAMILY_MEMBER
+ 
+ ,ITEM_NO
+ ,ITEM_DESCRIPTION
+ 
+ ,SHELF_PRICE
+ 
+ FROM PRODUCTS 
+ 
+ ORDER BY 1
+
+1. What is the TOTAL COUNT OF PRODUCTS YOU COULD PURCHASE FOR EACH FAMILY MEMBER?
+
+	WE CAN ADD COUNT DISTINCT
+	
+2. What is the MIN PRICE, MAX, and AVG price you'd have to pay for each family member?
+
+	WE CAN ADD MIN/MAX/AVG
+
+-----------------------------------------------------------------------------------------------------
+
+2 APPROACHES
+
+1. SUBQUERY OR CASE STATEMENT APPROACH
+
+
+
+
+
+
+
+
+2. Of those vendors, which have an UNSOLD product count of over 200?
+
+    --------------------------------------------------- (HAVING)
+	
+	Approach 1: USE HAVING KEYWORD (THE 7TH CHILD OF SQL) - HAVING IS A KEYWORD THAT APPEARS, AND PEOPLE SAY, WHO BROUGHT THAT GUY
+
+	
+	SELECT
+	count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+	,b.vendor_name
+
+	FROM
+	SALES A
+
+	RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+	WHERE 
+	A.ITEM IS NULL
+
+	GROUP BY
+	b.vendor_name
+	
+	HAVING count(distinct item_no) > 200
+
+	ORDER BY 1 DESC
+	
+	---------------------------------------------------------- (SUBQUERY)
+	
+	Approach 2: QUERY YOUR QUERY (SUBQUERY)
+	
+	
+	SELECT
+	 A.TOTAL_UNSOLD_PRODUCTS
+	,A.VENDOR_NAME
+	
+	FROM
+	
+	(SELECT
+	count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+	,b.vendor_name
+
+	FROM
+	SALES A
+
+	RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+	WHERE 
+	A.ITEM IS NULL
+
+	GROUP BY
+	b.vendor_name
+	
+	ORDER BY 1 DESC) AS A
+	
+	WHERE
+	A.TOTAL_UNSOLD_PRODUCTS > 200
+	
+	----------------------------------------------------------- (CTE - Common Table Expression - Temporary Table)
+	
+	APPROACH 3: CTE EXPRESSION WITH!
+	
+	WITH A AS (SELECT
+	count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+	,b.vendor_name
+
+	FROM
+	SALES A
+
+	RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+	WHERE 
+	A.ITEM IS NULL
+
+	GROUP BY
+	b.vendor_name
+	
+	ORDER BY 1 DESC)
+	
+	SELECT
+	
+	TOTAL_UNSOLD_PRODUCTS
+	,VENDOR_NAME
+	
+	FROM A
+	
+	WHERE 
+	
+	TOTAL_UNSOLD_PRODUCTS > 200
+	
+Question: What's teh difference between building a SUBQUERY and USING A CTE. ---> None. Just matter of preference and readability. I prefer CTEs. They look cleaner to me.
+	
+	
+Now, when do we use Subqueries/CTES --> When need to build a complex set of steps....In this EXAMPLE we just USED HAVING...."
+
+
+Learning Objectives
+Ask two or more questions in a single SQL query.
+Perform multi-step aggregations or filtering within one query.
+
+--What were the top five categories of liquor sold (based on number of sales) in the five most populous counties?
+
+select category_name
+, count(*) as n 
+from sales 
+where county in (select county from counties order by population desc limit 5) group by category_name order by n desc;
+
+
+--What were the top 5 counties in terms of mL per capita?
+
+
+select county
+, cast(mL_total as numeric) / population as mL_per_cap 
+from counties 
+left join (select county, sum(pack * liter_size * bottle_qty) as mL_total from sales group by county) as temp using (county) order by mL_per_cap desc limit 5;
+
+
+
+
+
+
+
+
+
+	
+SELECT
+count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+,b.vendor_name
+
+FROM
+SALES A
+
+RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+WHERE 
+A.ITEM IS NULL
+
+GROUP BY
+b.vendor_name
+
+ORDER BY 1 DESC
+	
+	
+
+SELECT
+count(distinct item_no)
+,b.vendor_name
+,b.category_name
+
+FROM
+SALES A
+
+RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+WHERE 
+A.ITEM IS NULL
+AND B.CATEGORY_NAME IN ('TEQUILA','SPICED RUM')
+
+GROUP BY
+b.vendor_name
+,b.category_name
+
+ORDER BY 1 DESC
+
+9.HAVING AND SUBQUERY and CTES hint hint....	
+
+AS WE LOOK AT THIS RESULT_SET, I THINK TO MYSELF. What if I only
+wanted to filter on the marketplaces that had TOTAL SALES > 5000

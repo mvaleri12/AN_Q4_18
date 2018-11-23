@@ -1,0 +1,214 @@
+SQL Class Lesson Plan 2 - Teacher
+
+INTRO - Review
+1. What are the aggregate functions? What do they do?
+	* SUM
+	* MIN
+	* MAX
+	* AVG
+	* COUNT
+	* COUNT(DISTINCT )
+	
+2. What is GROUP BY?
+
+3. What can go in the GROUP BY clause? What can not?
+
+4. What happens to the result-output as you add more dimensions to the GROUP BY?
+
+LESSON - JOINs
+
+1. Revisit SQL PROMPT WE WROTE IN CLASS
+
+
+ GMS         M   DATE           MARKETPLACE_ID
+"1255.00"	"3"	"2018-10-30"	6
+"1140.00"	"3"	"2018-10-31"	3
+"519.00"	"1"	"2018-10-31"	6
+"553.00"	"1"	"2018-10-31"	3240
+"1046.00"	"2"	"2018-11-01"	3
+"679.00"	"2"	"2018-11-01"	4
+"921.00"	"1"	"2018-11-02"	3
+"899.00"	"1"	"2018-11-02"	3240
+
+SELECT
+
+ SUM(LAUNCH_DAY_GMS) AS TOTAL_GMS
+,COUNT(DISTINCT MERCHANT_ID) AS TOTAL_MERCHANTS
+,LAUNCH_DATE
+,MARKETPLACE_ID
+
+FROM LAUNCHES
+
+GROUP BY
+LAUNCH_DATE
+,MARKETPLACE_ID
+
+INTRODUCTION - JOINs
+
+2. What if we wanted to understand GMS and Total Merchant's by Markeplace Name?
+
+	We would need to utilize another table. We need to RELATE one table to another. THUS, the term relational database.
+
+But wouldn't it be easier to just have Marketplace_name coded into the table...I Agree...but ponder this....
+
+	* We would be adding another column here in the ACTUAL table --> That would introduce 16 new rows. MORE SPACE
+	* Or we could store the country name information in another table --> In 4 Rows. LESS SPACE
+
+3. WHY DO WE JOIN 
+	When the question we want answered cannot be answered from a single table.
+
+4. WHAT IS REQUIRED TO JOIN? (Sounds like a VLOOKUP RIGHT?)
+
+	1. 2 or MORE TABLES
+	2. Tables must share 1 COLUMN in common of the SAME data type. This is the UNIQUE VALUE THAT WE JOIN ON
+	3. The Data in the secondary tables, should be unique ( I.E, the primary key should not repeat itself within a column) <Going to touch on this later.
+	
+5. How Do we Visualize a JOIN? 
+
+	As two circles, A & B.
+		A <--- Is always the primary table. It's the table we assign as nessecary. Business critical.
+		B.<--- Is always secondary table. It's the table that is nice to have. The Fluff.
+		
+	We draw as a Ven Diagram
+	
+	Considering this Example: What are total SALES by Customer STATE?
+	
+	SALES (
+	SALES / CUSTOMER_ID /    DATE
+	100		123			  11 / 1 / 2018
+	50		456			  11 / 1 / 2018
+	25		789			  11 / 1 / 2018
+	10		987           11/  1 / 2018
+	
+	TOTAL 185 SALES / 4 CUSTOMERS
+	
+	CUSTOMERS (
+	CUSTOMER_ID / STATE / UPDATE_DATE / Name
+	123            WI    1 / 1/ 2018    Andrew
+	456            NJ    1 / 1/ 2018    Caroline
+	987            <NULL> 1/ 1 / 2018   Laura
+	346		       WA    1/ 1/ 2018     Chaya
+	
+	
+	4 CUSTOMERS
+	
+6. JOINS
+
+	INNER JOIN OR JOIN: DRAW MIDDLE OF CIRCLE --> THEN DRAW LINES. CUSTOMER_ID MUST BE IN BOTH TABLES, OTHERWISE EXCLUDE.
+	LEFT JOIN: DRAW LEFT SIDE AND MIDDLE ---> CUSTOMER_ID ONLY NEEDS TO BE IN TABLE A, IF MISSING FROM TABLE B THEN OK, BUT SHOW COLUMN RESULT AS <NULL> (NO STATE)
+    RIGHT JOIN: INVERSE OF ABOVE ---> CUSTOMER_ID ONLY NEEDS TO BE IN TABLE B, IF MISSING FROM TABLE A THEN OK, BUT SHOW COLUMN RESULT AS <NULL> (NO SALE)
+	
+	OTHER FLAVORS
+	FULL OUTER JOIN --> GIVE ME EVERYTHING!
+	
+	
+7. Let's write the syntax to JOIN these two table together
+
+	WHAT THREE THINGS TO REMEMBER WHEN JOINING TABLES
+
+	1. We ALIAS the TABLES AND APPLY TO COLUMNS (A and B) and put them in the FROM clause
+	2.JOIN on the column the two tables have in common
+	3. STLYE OF JOIN
+	
+	INNER JOIN - WHAT HAPPENED? - ONLY CUSTOMERS IN A & B - NORMAL SPEAK,ONLY CUST WHO BOUGHT WHO ARE IN CUSTOMER TABLE
+	
+	LEFT JOIN - WHAT HAPPENED? - All customers, regardless if in Table B, but some cust states will be NULL
+	RIGHT JOIN - WHAT HAPPENED? -All customers, regardless if in Table A
+	FULL OUTER JOIN - WHAT HAPPENED? -ALL CUSTOMERS, AND ALL ORDERS
+	
+	
+7. <STORY TIME> KINDLE BOOK CATALOG
+	
+	REPLACE CUST_ID with PROD_ID and CUSTOMERS WITH PRODUCT_NAME - AMAZON
+	
+8. FINAL TEST, MAKE LEFT JOIN AND INNER JOIN TO RETURN THE MARKETPLACE_NAME in the original example from class.
+
+DO IN INNER - EXPLAIN TOTAL GMS
+DO IN LEFT JOIN - EXPLAIN DIFFERENCE TOTAL_GMS
+
+DO BOTH EXAMPLES
+
+--------------JOINIG MULTIPLE TABLES AND SUBQUERIES AND CASE STATEMENTS NEXT--------
+
+9. Draw the relationship entity diagram for the
+
+	* SALES
+	* COUNTIES
+	* PRODUCTS
+	* STORES
+	
+	What relates those tables together (primary KEY remember!), what do you think
+	is the primary TABLE?
+	
+	SELECT * AND THEN JOIN ALL THOSE TABLES TOGETHER on their primary keys, select 1000 rows.
+	
+10. 
+
+1. Write that query shows us the number of distincts product that are unsold by each vendor. 
+
+2. Of thoe distinct products, how many are TEQUILA? How many are SPICED RUM?
+
+3. OF those vendors, which have more unsold TEQUILA than SPICED RUM?
+
+	
+	SELECT
+count(distinct item_no) AS TOTAL_UNSOLD_PRODUCTS
+,b.vendor_name
+,b.category_name
+
+FROM
+SALES A
+
+RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+WHERE 
+A.ITEM IS NULL
+AND B.CATEGORY_NAME IN ('TEQUILA','SPICED RUM')
+
+GROUP BY
+b.vendor_name
+,b.category_name
+
+ORDER BY 1 DESC
+	
+	
+
+SELECT
+count(distinct item_no)
+,b.vendor_name
+,b.category_name
+
+FROM
+SALES A
+
+RIGHT JOIN PRODUCTS B ON A.ITEM = B.ITEM_NO
+
+WHERE 
+A.ITEM IS NULL
+AND B.CATEGORY_NAME IN ('TEQUILA','SPICED RUM')
+
+GROUP BY
+b.vendor_name
+,b.category_name
+
+ORDER BY 1 DESC
+
+9.HAVING AND SUBQUERY and CTES hint hint....	
+
+AS WE LOOK AT THIS RESULT_SET, I THINK TO MYSELF. What if I only
+wanted to filter on the marketplaces that had TOTAL SALES > 5000
+	
+	
+	
+	
+
+		
+
+
+
+
+
+
+
+
+
